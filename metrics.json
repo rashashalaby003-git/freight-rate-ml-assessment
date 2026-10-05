@@ -1,0 +1,12 @@
+{
+  "split_date": "2025-09-01",
+  "dropped_features": [
+    "market_index",
+    "quote_signal"
+  ],
+  "n_train": 38477,
+  "n_valid": 9523,
+  "mae": 103.40236995428012,
+  "rmse": 629.715311053679,
+  "best_iteration": 163
+}

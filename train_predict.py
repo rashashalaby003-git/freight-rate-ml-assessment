@@ -93,7 +93,7 @@ def make_model(**kw):
 def main(args):
     dev = prep(load(args.train))
 
-    # ---- 1) Time-based validation -------------------------------------
+    # Time-based validation -------------------------------------
     train_df = dev[dev["date"] < SPLIT_DATE].copy()
     val_df = dev[dev["date"] >= SPLIT_DATE].copy()
     print(f"Train: {train_df.shape}  {train_df['date'].min().date()} -> {train_df['date'].max().date()}")
@@ -107,7 +107,7 @@ def main(args):
     X_va, y_va = to_features(val_df), val_df[TARGET]
 
     model = make_model(iterations=3000, early_stopping_rounds=100)
-    # predict rate per mile, then multiply by distance to get the full rate
+    # predict rate per mile, then multiply by distance to get the full rate..............................................................
     model.fit(X_tr, y_tr / X_tr["distance"], eval_set=(X_va, y_va / X_va["distance"]))
 
     pred = np.clip(model.predict(X_va) * X_va["distance"], 0, None)
@@ -162,12 +162,14 @@ def main(args):
     out.to_csv("validation_predictions.csv", index=False)
     print("Saved validation_predictions.csv", out.shape)
 
-    # ---- 4) december_chart_inputs.csv -> december_predictions.csv -----
-    _, dec_pred = predict_file(args.december, lambda d: complete_december(d, dev))
-    dec_out = pd.read_csv(args.december)  # keep the original columns/format untouched
+   # ---- 4) december_chart_inputs.csv -> fill predicted_rate ----------
+    _,dec_pred = predict_file(args.december, lambda d: complete_december(d, dev))
+
+    dec_out = pd.read_csv(args.december)
     dec_out["predicted_rate"] = dec_pred
-    dec_out.to_csv("december_predictions.csv", index=False)
-    print("Saved december_predictions.csv", dec_out.shape)
+    dec_out.to_csv(args.december, index=False)
+
+    print("Updated", args.december, dec_out.shape)
     print(dec_out["predicted_rate"].describe().round(2))
 
 
